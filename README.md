@@ -22,6 +22,7 @@ The application is hosted directly on the Google Earth Engine platform. You can 
 ## Repository Contents
 
 - `crop_classification_app.js`: The full JavaScript code for the GEE application.
+- `Crop Classification.docx`: A document detailing the methodology, data sources, and results of the crop classification tool.
 - `README.md`: This file.
 
 ## Methodology
