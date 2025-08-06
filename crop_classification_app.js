@@ -1,8 +1,6 @@
 // ------------------- GLOBAL SETTINGS -------------------
-//var rawBands = ['B2','B3','B4','B8','B11'];
 var rawBands = ['B2','B3','B4','B5','B6','B8','B11'];
 
-//var computedBands = ['NDVI','EVI'];
 var computedBands = ['NDVI', 'EVI', 'GNDVI', 'NDWI', 'SAVI'];
 
 var allBands = rawBands.concat(computedBands);
@@ -695,7 +693,6 @@ runButton.onClick(function(){
                     loadingLabel.style().set('color','green');
                   });
                 });
-
               });
             });
           });
