@@ -1,6 +1,8 @@
 // ------------------- GLOBAL SETTINGS -------------------
+//var rawBands = ['B2','B3','B4','B8','B11'];
 var rawBands = ['B2','B3','B4','B5','B6','B8','B11'];
 
+//var computedBands = ['NDVI','EVI'];
 var computedBands = ['NDVI', 'EVI', 'GNDVI', 'NDWI', 'SAVI'];
 
 var allBands = rawBands.concat(computedBands);
@@ -240,24 +242,63 @@ bottomLeftPanel.add(ui.Label({
 bottomLeftPanel.add(resultsDetailsPanel);
 ui.root.add(bottomLeftPanel);
 
-// ------- DYNAMICALLY UPDATE LEGEND CLASSES ACC TO WHAT IS IN THE CURRENT TRAINING SET -----------------
+// ---- DYNAMICALLY UPDATE LEGEND CLASSES ACC TO WHAT IS IN THE CURRENT TRAINING SET & Make it Interactive with Map Layers--------
+var legendCheckboxes = {};
+
 function updateLegendDynamic(title, presentLabels) {
   legendPanel.clear();
+  legendCheckboxes = {};
+
   legendPanel.add(ui.Label({
     value: 'Legend',
     style: {fontWeight: 'bold', fontSize: '16px', margin: '4px 0', color:'#42614d'}
   }));
   legendPanel.add(ui.Label({value: title, style: {fontWeight: 'bold', fontSize: '16px', margin: '0 0 8px 0'}}));
+
   presentLabels.evaluate(function(indices) {
     indices.forEach(function(index) {
+      var checkbox = ui.Checkbox({
+        label: classNames[index],
+        value: true,
+        style: {margin: '0 0 0 6px'}
+      });
+
+      legendCheckboxes[index] = checkbox;
+
+      // Get the classified and True Layers from the Map at index 1 & 2.
+      checkbox.onChange(function(checked) {
+        var layer1 = Map.layers().get(1);
+        var layer2 = Map.layers().get(2);
+      
+        // Define a function to apply the masking logic to a layer.
+        var applyMask = function(layer) {
+          if (!layer) return;
+      
+          var originalImage = layer.get('eeObject');
+      
+          var newMask = ee.Image(0);
+          for (var i in legendCheckboxes) {
+            if (legendCheckboxes[i].getValue()) {
+              newMask = newMask.or(originalImage.eq(ee.Number.parse(i)));
+            }
+          }
+          
+          var maskedImage = originalImage.updateMask(newMask);
+          layer.set('eeObject', maskedImage);
+        };
+      
+        // Apply the masking logic to both layers.
+        applyMask(layer1);
+        applyMask(layer2);
+      });
+
       legendPanel.add(ui.Panel([
         ui.Label({style: {backgroundColor: palette[index], padding: '8px', margin: '0'}}),
-        ui.Label({value: classNames[index], style: {margin: '0 0 0 6px'}})
+        checkbox
       ], ui.Panel.Layout.Flow('horizontal')));
     });
   });
 }
-
 //--------------PROCESSING SATELLITE IMAGERY------------------------------
 function maskClouds(image){
   var qa = image.select('QA60');
@@ -693,6 +734,7 @@ runButton.onClick(function(){
                     loadingLabel.style().set('color','green');
                   });
                 });
+
               });
             });
           });
