@@ -99,10 +99,10 @@ function updateAdvancedSettingsUI(type) {
   if (!advancedToggle.getValue()) return;
 
   // Create fresh inputs
-  var numTreesInput = ui.Textbox({value: '50', placeholder: 'Number of Trees', style: {width: '75%', margin: 'auto 7px'}});
+  var numTreesInput = ui.Textbox({value: '200', placeholder: 'Number of Trees', style: {width: '75%', margin: 'auto 7px'}});
   var maxNodesInput = ui.Textbox({placeholder: 'Max Nodes (optional)', style: {width: '75%', margin: 'auto 7px'}});
-  var minLeafInput = ui.Textbox({value: '1', placeholder: 'Min Leaf Population', style: {width: '75%', margin: 'auto 7px'}});
-  var svmGammaInput = ui.Textbox({value: '0.5', placeholder: 'Gamma', style: {width: '75%', margin: 'auto 7px'}});
+  var minLeafInput = ui.Textbox({value: '5', placeholder: 'Min Leaf Population', style: {width: '75%', margin: 'auto 7px'}});
+  var svmGammaInput = ui.Textbox({value: '0.1', placeholder: 'Gamma', style: {width: '75%', margin: 'auto 7px'}});
   var svmCostInput = ui.Textbox({value: '10', placeholder: 'Cost', style: {width: '75%', margin: 'auto 7px'}});
 
   // Store inputs globally
@@ -498,8 +498,8 @@ runButton.onClick(function(){
                 }
               
                 // Create tasks for RF grid search
-                [10, 50, 100].forEach(function(numTrees) {
-                  [null, 20, 50].forEach(function(maxNodes) {
+                [100, 150, 200].forEach(function(numTrees) {
+                  [null, 100, 500].forEach(function(maxNodes) {
                     tasks.push(function(done) {
                       var options = {numberOfTrees: numTrees};
                       if (maxNodes !== null) {
@@ -516,7 +516,7 @@ runButton.onClick(function(){
                 });
               
                 // Tasks for CART grid search
-                [1, 5, 10].forEach(function(minLeaf) {
+                [10, 20, 50].forEach(function(minLeaf) {
                   tasks.push(function(done) {
                     var cart = ee.Classifier.smileCart({minLeafPopulation: minLeaf});
                     var trained = cart.train(trainSet, 'label', allBands);
@@ -527,8 +527,8 @@ runButton.onClick(function(){
                 });
               
                 // Tasks for SVM grid search
-                [0.1, 0.5, 1].forEach(function(gamma) {
-                  [1, 10, 100].forEach(function(cost) {
+                [0.001, 0.1, 0.5, 1].forEach(function(gamma) {
+                  [1, 10, 100, 150].forEach(function(cost) {
                     tasks.push(function(done) {
                       var svm = ee.Classifier.libsvm({
                         gamma: gamma,
@@ -622,8 +622,8 @@ runButton.onClick(function(){
                 if (type === 'Random Forest') {
                 // Safely extract number of trees
                 var numTrees = (currentInputs && currentInputs.numTreesInput)
-                  ? parseInt(currentInputs.numTreesInput.getValue()) || 50
-                  : 50;
+                  ? parseInt(currentInputs.numTreesInput.getValue()) || 200
+                  : 200;
               
                 // Safely extract max nodes
                 var maxNodes = (currentInputs && currentInputs.maxNodesInput)
@@ -643,14 +643,14 @@ runButton.onClick(function(){
 
                 else if (type === 'CART') {
                   var minLeaf = (currentInputs && currentInputs.minLeafInput)
-                    ? parseInt(currentInputs.minLeafInput.getValue()) || 1
-                    : 1;
+                    ? parseInt(currentInputs.minLeafInput.getValue()) || 5
+                    : 5;
                   classifier = ee.Classifier.smileCart({minLeafPopulation: minLeaf});
                 }
                 else if (type === 'SVM') {
                   var gamma = currentInputs && currentInputs.svmGammaInput
-                    ? parseFloat(currentInputs.svmGammaInput.getValue()) || 0.5
-                    : 0.5;
+                    ? parseFloat(currentInputs.svmGammaInput.getValue()) || 0.1
+                    : 0.1;
                   
                   var cost = currentInputs && currentInputs.svmCostInput
                     ? parseFloat(currentInputs.svmCostInput.getValue()) || 10
