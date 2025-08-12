@@ -15,7 +15,7 @@ This repository contains the source code for an interactive crop classification 
 
 The application is hosted directly on the Google Earth Engine platform. You can access and run the tool by clicking the link below:
 
-**[Launch the Crop Classification GEE App]([https://earthengine.google.com/your-gee-app-link-here](https://crop-classification-467508.projects.earthengine.app/view/crop-classification))**
+**[Launch the Crop Classification GEE App](https://crop-classification-467508.projects.earthengine.app/view/crop-classification)**
 
 ***
 
